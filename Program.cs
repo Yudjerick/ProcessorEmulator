@@ -1,8 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ProcessorEmulator;
 using ProcessorEmulator.Commands;
+using ProcessorEmulator.Compiler;
 
-Processor processor = new Processor();
+/*Processor processor = new Processor();
 processor.dataMemory[0] = 6;
 processor.dataMemory[1] = 1;
 processor.dataMemory[2] = 5;
@@ -37,4 +38,12 @@ for(int i = 0; i < commands.Count; i++)
 processor.ExecuteAll();
 
 Console.WriteLine();
-Console.WriteLine(processor.registers[0]);
+Console.WriteLine(processor.registers[0]);*/
+
+Compiler compiler = new Compiler();
+compiler.variables.Add("Vector1", 3);
+
+compiler.TryParseCommandOperand("r4", out AddressingType addressing, out uint value, out string error);
+Console.WriteLine(addressing);
+Console.WriteLine(value);
+Console.WriteLine(error);
