@@ -41,9 +41,16 @@ Console.WriteLine();
 Console.WriteLine(processor.registers[0]);*/
 
 Compiler compiler = new Compiler();
-compiler.variables.Add("Vector1", 3);
+if(compiler.TryCompileLine("LOAD r1", out string err))
+{
+    Console.WriteLine(compiler.Context.compiledCommands[0]);
+    Console.WriteLine(compiler.Context.compiledCommands[0].AddressingTwo);
+    Console.WriteLine(compiler.Context.compiledCommands[0].OperandOne);
+    Console.WriteLine(compiler.Context.compiledCommands[0].OperandTwo);
+}
+else
+{
+    Console.WriteLine(err);
+}
 
-compiler.TryParseCommandOperand("r4", out AddressingType addressing, out uint value, out string error);
-Console.WriteLine(addressing);
-Console.WriteLine(value);
-Console.WriteLine(error);
+
