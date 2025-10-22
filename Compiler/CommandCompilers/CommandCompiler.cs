@@ -14,8 +14,6 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
 
         public abstract CommandType CommandType { get; }
         protected abstract List<List<AddressingType>> ExpectedOperandsTypes { get; }
-
-
         
         public void Init(CompilerContext context)
         {
@@ -59,7 +57,7 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
                     parsedOperand.addressing = AddressingType.Register;
                     parsedOperand.value = (uint)_context.registersNames.IndexOf(token);
                 }
-                else if (_context.variables.Keys.Contains(token))
+                else if (_context.variables.ContainsKey(token))
                 {
                     parsedOperand.addressing = AddressingType.Immediate;
                     parsedOperand.value = (uint)_context.variables[token];
@@ -68,6 +66,11 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
                 {
                     parsedOperand.addressing = AddressingType.Immediate;
                     parsedOperand.value = literalValue;
+                }
+                else if (_context.labels.ContainsKey(token))
+                {
+                    parsedOperand.addressing = AddressingType.Immediate;
+                    parsedOperand.value = (uint)_context.labels[token];
                 }
                 else
                 {
@@ -78,8 +81,14 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
             return true;
         }
 
-        protected bool TryParseAllOperands(string[] operands, out List<ParsedOperand>? parsedOperands, out string errorMsg)
+        protected bool TryValidateAndParseAllOperands(string[] operands, out List<ParsedOperand>? parsedOperands, out string errorMsg)
         {
+            
+            parsedOperands = null;
+            if (!CheckOperandCount(operands, out errorMsg))
+            {
+                return false;
+            }
             var result = new List<ParsedOperand>();
             foreach (var operand in operands)
             {
@@ -91,6 +100,10 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
                     parsedOperands = null;
                     return false;
                 }
+            }
+            if (!CheckOperandAddressingTypes(result.Select(x => x.addressing).ToList(), out errorMsg))
+            {
+                return false;
             }
             errorMsg = string.Empty;
             parsedOperands = result;
@@ -123,7 +136,18 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
             return true;
         }
 
-        public abstract bool TryCompile(string[] operands, out Command? command, out string errorMsg);
+        public bool TryCompile(string[] operands, out Command? command, out string errorMsg)
+        {
+            command = null;
+            if (!TryValidateAndParseAllOperands(operands, out List<ParsedOperand> parsedOperands, out errorMsg))
+            {
+                return false;
+            }
+            command = GetSpecificCommand(parsedOperands);
+            return true;
+        }
+
+        protected abstract Command GetSpecificCommand(List<ParsedOperand> operands);
 
         public class ParsedOperand
         {

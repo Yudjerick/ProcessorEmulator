@@ -29,7 +29,7 @@ namespace ProcessorEmulator.Commands
             {
                 return (AddressingType)GetBits(10, 2);
             }
-            protected set
+            set
             {
                 SetBits(10, 2, (uint)value);
             }
@@ -41,7 +41,7 @@ namespace ProcessorEmulator.Commands
             {
                 return GetBits(12, 4);
             }
-            protected set
+            set
             {
                 SetBits(12, 4, value);
             }
@@ -53,7 +53,7 @@ namespace ProcessorEmulator.Commands
             {
                 return GetBits(16, 16);
             }
-            protected set
+            set
             {
                 SetBits(16, 16, value);
             }

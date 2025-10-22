@@ -41,7 +41,7 @@ Console.WriteLine();
 Console.WriteLine(processor.registers[0]);*/
 
 Compiler compiler = new Compiler();
-if(compiler.TryCompileLine("LOAD r1", out string err))
+if(compiler.TryCompileLine("LOAD r1 11", false, out string err))
 {
     Console.WriteLine(compiler.Context.compiledCommands[0]);
     Console.WriteLine(compiler.Context.compiledCommands[0].AddressingTwo);
