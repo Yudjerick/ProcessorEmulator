@@ -12,12 +12,15 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
     {
         protected CompilerContext _context;
 
+        protected string[] _givenOperands;
+
         public abstract CommandType CommandType { get; }
         protected abstract List<List<AddressingType>> ExpectedOperandsTypes { get; }
         
-        public void Init(CompilerContext context)
+        public void Init(CompilerContext context, string[] operands)
         {
             _context = context;
+            _givenOperands = operands;
         }
         public bool TryParseCommandOperand(string token, out ParsedOperand parsedOperand, out string errorMsg)
         {
@@ -136,10 +139,10 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
             return true;
         }
 
-        public bool TryCompile(string[] operands, out Command? command, out string errorMsg)
+        public bool TryCompile(out Command? command, out string errorMsg)
         {
             command = null;
-            if (!TryValidateAndParseAllOperands(operands, out List<ParsedOperand> parsedOperands, out errorMsg))
+            if (!TryValidateAndParseAllOperands(_givenOperands, out List<ParsedOperand> parsedOperands, out errorMsg))
             {
                 return false;
             }

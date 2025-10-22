@@ -14,27 +14,57 @@ namespace ProcessorEmulator.Compiler
     internal class Compiler
     {
         public CompilerContext Context = new CompilerContext();
+        private bool expectOnlyCommand = false;
         public void Compile(string source)
         {
             var lines = source.Split('\n');
+            for(int i  = 0; i < lines.Length; i++)
+            {
+                if(!TryCompileLine(lines[i], out string error))
+                {
+                    Console.WriteLine(error);
+                    break;
+                }
+            }
+            for(int i = 0; i < Context.commandCompilers.Count; i++)
+            {
+                if (Context.commandCompilers[i].TryCompile(out Command command, out string error))
+                {
+                    Context.compiledCommands.Add(command);
+                    
+                }
+                else{
+                    Console.WriteLine(error);
+                    break;
+                }
+
+            }
         }
 
-        public bool TryCompileLine(string line, bool expectOnlyCommand, out string errorMessage)
+        public bool TryCompileLine(string line, out string errorMessage)
         {
+            
             errorMessage = string.Empty;
+            
             line = line.Split(';')[0];
             line = line.Trim();
             line = Regex.Replace(line, "[ ]{2,}", " ");
             var tokens = line.Split(new[] { ' ', '\t' });
+
+            if (line == string.Empty)
+            {
+                return true;
+            }
 
             if (Enum.TryParse(tokens[0], true, out CommandType commandType))
             {
                 string[] operands = new string[tokens.Length - 1];
                 Array.Copy(tokens, 1, operands, 0, operands.Length);
 
-                if (TryCompileCommand(operands, commandType, out Command? command, out errorMessage))
+                if (CreateCommandCompiler(operands, commandType, out CommandCompiler? commandCompiler, out errorMessage))
                 {
-                    Context.compiledCommands.Add(command);
+                    Context.commandCompilers.Add(commandCompiler);
+                    expectOnlyCommand = false;
                     return true;
                 }
                 return false;
@@ -46,21 +76,28 @@ namespace ProcessorEmulator.Compiler
             }
             else if (line[^1] == ':')
             {
+                expectOnlyCommand = true;
                 string pattern = @"^[a-zA-Z]\w*\s*:$";
                 if(Regex.IsMatch(line, pattern))
                 {
-                    string label = line.Substring(line.Length - 1).Trim();
-                    Context.labels.Add(label, Context.compiledCommands.Count);
+                    string label = line.Substring(0,line.Length - 1).Trim();
+                    Context.labels.Add(label, Context.commandCompilers.Count);
+                    return true;
                 }
-                
+                else
+                {
+                    errorMessage = $"'{line}' is not valid label fromat";
+                    return false;
+                }
+
             }
+            errorMessage = $"Unknown error in line '{line}'";
             return false;
         }
 
-        public bool TryCompileCommand(string[] operands, CommandType commandType, out Command? command, out string errorMessage)
+        public bool CreateCommandCompiler(string[] operands, CommandType commandType, out CommandCompiler? compiler, out string errorMessage)
         {
             errorMessage = string.Empty;
-            CommandCompiler compiler;
             switch (commandType)
             {
                 case CommandType.ADD:
@@ -97,16 +134,12 @@ namespace ProcessorEmulator.Compiler
                     compiler = new StoreCommandCompiler();
                     break;
                 default:
-                    command = null;
+                    compiler = null;
                     errorMessage = $"Command type {commandType} not implemented";
                     return false;
             }
-            compiler.Init(Context);
-            if (compiler.TryCompile(operands, out command, out errorMessage))
-            {
-                return true;
-            }
-            return false;
+            compiler.Init(Context, operands);
+            return true;
         }
 
         

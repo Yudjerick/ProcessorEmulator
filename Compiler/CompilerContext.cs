@@ -1,4 +1,5 @@
 ﻿using ProcessorEmulator.Commands;
+using ProcessorEmulator.Compiler.CommandCompilers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace ProcessorEmulator.Compiler
     internal class CompilerContext
     {
         public List<Command> compiledCommands = new List<Command>();
+        public List<CommandCompiler> commandCompilers = new List<CommandCompiler>();
         public uint[] dataMemory = new uint[1024];
 
         public Dictionary<string, int> labels = new Dictionary<string, int>();
