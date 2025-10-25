@@ -65,10 +65,10 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
                     parsedOperand.addressing = AddressingType.Immediate;
                     parsedOperand.value = (uint)_context.variables[token];
                 }
-                else if (ushort.TryParse(token, out ushort literalValue))
+                else if (short.TryParse(token, out short literalValue))
                 {
                     parsedOperand.addressing = AddressingType.Immediate;
-                    parsedOperand.value = literalValue;
+                    parsedOperand.value = (ushort)literalValue;
                 }
                 else if (_context.labels.ContainsKey(token))
                 {

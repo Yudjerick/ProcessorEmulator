@@ -25,7 +25,7 @@ namespace ProcessorEmulator.Commands
         {
             if (!processor.ZeroFlag)
                 return;
-            uint value = processor.GetOperandValue(AddressingTwo, OperandTwo);
+            uint value = (uint)processor.GetOperandValue(AddressingTwo, OperandTwo);
             processor.commandPointer = value;
         }
     }

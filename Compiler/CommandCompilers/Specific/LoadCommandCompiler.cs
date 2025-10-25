@@ -20,7 +20,7 @@ namespace ProcessorEmulator.Compiler.CommandCompilers.Specific
             new List<AddressingType>
             {
                 AddressingType.Register,
-                AddressingType.RegisterIndirect,
+                AddressingType.Direct,
                 AddressingType.RegisterIndirect,
                 AddressingType.Immediate
             }

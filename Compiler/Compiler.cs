@@ -15,30 +15,39 @@ namespace ProcessorEmulator.Compiler
     {
         public CompilerContext Context = new CompilerContext();
         private bool expectOnlyCommand = false;
-        public void Compile(string source)
+        private int nextFreeMemoryCell = 0;
+
+        public void LoadToProcessor(Processor processor)
         {
+            for (int i = 0; i < Context.compiledCommands.Count; i++)
+            {
+                processor.commandMemory[i] = Context.compiledCommands[i].data;
+            }
+            processor.dataMemory = Context.dataMemory;
+        }
+        public bool Compile(string source, out string errorMsg)
+        {
+            errorMsg = "";
             var lines = source.Split('\n');
             for(int i  = 0; i < lines.Length; i++)
             {
-                if(!TryCompileLine(lines[i], out string error))
+                if(!TryCompileLine(lines[i], out errorMsg))
                 {
-                    Console.WriteLine(error);
-                    break;
+                    return false;
                 }
             }
             for(int i = 0; i < Context.commandCompilers.Count; i++)
             {
-                if (Context.commandCompilers[i].TryCompile(out Command command, out string error))
+                if (Context.commandCompilers[i].TryCompile(out Command command, out errorMsg))
                 {
                     Context.compiledCommands.Add(command);
-                    
                 }
-                else{
-                    Console.WriteLine(error);
-                    break;
+                else
+                {
+                    return false;
                 }
-
             }
+            return true;
         }
 
         public bool TryCompileLine(string line, out string errorMessage)
@@ -46,6 +55,7 @@ namespace ProcessorEmulator.Compiler
             
             errorMessage = string.Empty;
             
+            line = line.ToLower();
             line = line.Split(';')[0];
             line = line.Trim();
             line = Regex.Replace(line, "[ ]{2,}", " ");
@@ -77,10 +87,20 @@ namespace ProcessorEmulator.Compiler
             else if (line[^1] == ':')
             {
                 expectOnlyCommand = true;
-                string pattern = @"^[a-zA-Z]\w*\s*:$";
+                string pattern = @"^[a-zA-Z_]\w*\s*:$";
                 if(Regex.IsMatch(line, pattern))
                 {
                     string label = line.Substring(0,line.Length - 1).Trim();
+                    if (Context.variables.ContainsKey(label))
+                    {
+                        errorMessage = $"'{label}' allready denfined as variable";
+                        return false;
+                    }
+                    if (Context.labels.ContainsKey(label))
+                    {
+                        errorMessage = $"'{label}' allready denfined as label";
+                        return false;
+                    }
                     Context.labels.Add(label, Context.commandCompilers.Count);
                     return true;
                 }
@@ -90,6 +110,54 @@ namespace ProcessorEmulator.Compiler
                     return false;
                 }
 
+            }
+            else if (tokens[0] == "int")
+            {
+                if (tokens.Length >= 3)
+                {
+                    string pattern = @"^[a-zA-Z_][a-zA-Z0-9_]*$";
+                    if (Regex.IsMatch(tokens[1], pattern))
+                    {
+                        if (Context.variables.ContainsKey(tokens[1]))
+                        {
+                            errorMessage = $"'{tokens[1]}' allready denfined as variable";
+                            return false;
+                        }
+                        if (Context.labels.ContainsKey(tokens[1]))
+                        {
+                            errorMessage = $"'{tokens[1]}' allready denfined as label";
+                            return false;
+                        }
+                        List<int> variablesToAdd = new List<int>();
+                        for(int i = 2; i < tokens.Length; i++)
+                        {
+                            if (int.TryParse(tokens[i], out int intValue))
+                            {
+                                variablesToAdd.Add(intValue);
+                            }
+                            else
+                            {
+                                errorMessage = $"{tokens[i]} can't be parsed as int";
+                                return false;
+                            }
+                        }
+                        
+                        Context.variables.Add(tokens[1], nextFreeMemoryCell);
+                        foreach (int value in variablesToAdd)
+                        {
+                            Context.dataMemory[nextFreeMemoryCell] = (uint)value;
+                            nextFreeMemoryCell++;
+                        }
+                        return true;
+
+                    }
+                    else
+                    {
+                        errorMessage = $"'{tokens[1]}' is not a valid variable name";
+                        return false;
+                    }
+                    
+                }
             }
             errorMessage = $"Unknown error in line '{line}'";
             return false;

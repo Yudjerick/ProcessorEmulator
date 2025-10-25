@@ -23,10 +23,10 @@ namespace ProcessorEmulator.Commands
 
         public override void Execute(Processor processor)
         {
-            uint valueOne = processor.GetOperandValue(AddressingType.Register, OperandOne);
-            uint valueTwo = processor.GetOperandValue(AddressingType.Register, OperandTwo);
-            uint sum = valueOne + valueTwo;
-            processor.SetValueToOperand(AddressingType.Register, OperandOne, sum);
+            int valueOne = (int)processor.GetOperandValue(AddressingType.Register, OperandOne);
+            int valueTwo = (int)processor.GetOperandValue(AddressingType.Register, OperandTwo);
+            int sum = valueOne + valueTwo;
+            processor.SetValueToOperand(AddressingType.Register, OperandOne, (uint)sum);
             processor.SignFlag = sum < 0;
             processor.ZeroFlag = sum == 0;
         }

@@ -24,9 +24,9 @@ namespace ProcessorEmulator.Commands
 
         public override void Execute(Processor processor)
         {
-            uint value = processor.GetOperandValue(AddressingType.Register, OperandOne);
+            int value = (int)processor.GetOperandValue(AddressingType.Register, OperandOne);
             value++;
-            processor.SetValueToOperand(AddressingType.Register, OperandOne, value);
+            processor.SetValueToOperand(AddressingType.Register, OperandOne, (uint)value);
             processor.ZeroFlag = value == 0;
             processor.SignFlag = value < 0;
         }

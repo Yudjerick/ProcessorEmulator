@@ -64,18 +64,18 @@ namespace ProcessorEmulator
                     break;
             }
         }
-        public uint GetOperandValue(AddressingType addressing, uint operand)
+        public int GetOperandValue(AddressingType addressing, uint operand)
         {
             switch (addressing)
             {
                 case AddressingType.Immediate: 
-                    return operand;
+                    return (short)operand;
                 case AddressingType.Direct:
-                    return dataMemory[operand];
+                    return (int)dataMemory[operand];
                 case AddressingType.Register:
-                    return registers[operand];
+                    return (int)registers[operand];
                 case AddressingType.RegisterIndirect:
-                    return dataMemory[registers[operand]];
+                    return (int)dataMemory[registers[operand]];
                 default: return 0;
             }
         }
