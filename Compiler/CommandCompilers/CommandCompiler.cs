@@ -10,6 +10,8 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
 {
     internal abstract class CommandCompiler
     {
+        public int CreatedOnLine { get; private set; }
+
         protected CompilerContext _context;
 
         protected string[] _givenOperands;
@@ -17,8 +19,9 @@ namespace ProcessorEmulator.Compiler.CommandCompilers
         public abstract CommandType CommandType { get; }
         protected abstract List<List<AddressingType>> ExpectedOperandsTypes { get; }
         
-        public void Init(CompilerContext context, string[] operands)
+        public void Init(CompilerContext context, string[] operands, int createdOnLine)
         {
+            CreatedOnLine = createdOnLine;
             _context = context;
             _givenOperands = operands;
         }

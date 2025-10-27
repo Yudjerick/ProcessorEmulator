@@ -4,7 +4,7 @@ using ProcessorEmulator.Commands;
 using ProcessorEmulator.Compiler;
 using System.Diagnostics;
 
-Compiler compiler = new Compiler();
+/*Compiler compiler = new Compiler();
 if(compiler.Compile(
     "int vec1 6 -1 5 6 7 -4 3\n" +
     "LOAD r2 [vec1]\n" +
@@ -34,6 +34,59 @@ if(compiler.Compile(
 else
 {
     Console.WriteLine(error);
-}
+}*/
 
+using System.IO;
+
+using System;
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Проверяем, передан ли аргумент с путём к файлу
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Ошибка: не указан путь к файлу.");
+            Console.WriteLine("Использование: TextFileReader.exe <путь_к_файлу>");
+            return;
+        }
+
+        string filePath = args[0];
+
+        // Проверяем, существует ли файл
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine($"Ошибка: файл '{filePath}' не найден.");
+            return;
+        }
+
+        try
+        {
+            // Читаем весь текст из файла и выводим в консоль
+            string content = File.ReadAllText(filePath);
+
+            Compiler compiler = new Compiler();
+            if (compiler.Compile(content,out string error, out int errorLineNum))
+            {
+                Processor processor = new Processor();
+                compiler.LoadToProcessor(processor);
+
+                processor.ExecuteAll();
+
+                Console.WriteLine();
+                Console.WriteLine("r0:");
+                Console.WriteLine((int)processor.registers[0]);
+            }
+            else
+            {
+                Console.WriteLine($"Error on line {errorLineNum}: {error}");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
+        }
+    }
+}
 

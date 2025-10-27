@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProcessorEmulator.Commands;
+using ProcessorEmulator.Core;
 
 namespace ProcessorEmulator
 {
@@ -28,11 +29,17 @@ namespace ProcessorEmulator
                 case CommandType.ADD:
                     result = new AddCommand(binary);
                     break;
+                case CommandType.SUB:
+                    result = new SubstractCommand(binary);
+                    break;
                 case CommandType.INC:
                     result = new IncrementCommand(binary);
                     break;
                 case CommandType.DEC:
                     result = new DecrementCommand(binary);
+                    break;
+                case CommandType.MUL:
+                    result = new MultiplyCommand(binary);
                     break;
                 case CommandType.JNZ:
                     result = new JumpNotZeroCommand(binary);

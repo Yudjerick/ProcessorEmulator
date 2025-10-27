@@ -25,14 +25,16 @@ namespace ProcessorEmulator.Compiler
             }
             processor.dataMemory = Context.dataMemory;
         }
-        public bool Compile(string source, out string errorMsg)
+        public bool Compile(string source, out string errorMsg, out int errorLineNumber)
         {
+            errorLineNumber = -1;
             errorMsg = "";
             var lines = source.Split('\n');
             for(int i  = 0; i < lines.Length; i++)
             {
-                if(!TryCompileLine(lines[i], out errorMsg))
+                if(!TryCompileLine(lines[i], i, out errorMsg))
                 {
+                    errorLineNumber = i;
                     return false;
                 }
             }
@@ -44,13 +46,14 @@ namespace ProcessorEmulator.Compiler
                 }
                 else
                 {
+                    errorLineNumber = Context.commandCompilers[i].CreatedOnLine;
                     return false;
                 }
             }
             return true;
         }
 
-        public bool TryCompileLine(string line, out string errorMessage)
+        public bool TryCompileLine(string line, int lineNum, out string errorMessage)
         {
             
             errorMessage = string.Empty;
@@ -71,7 +74,7 @@ namespace ProcessorEmulator.Compiler
                 string[] operands = new string[tokens.Length - 1];
                 Array.Copy(tokens, 1, operands, 0, operands.Length);
 
-                if (CreateCommandCompiler(operands, commandType, out CommandCompiler? commandCompiler, out errorMessage))
+                if (CreateCommandCompiler(operands, commandType, lineNum, out CommandCompiler? commandCompiler, out errorMessage))
                 {
                     Context.commandCompilers.Add(commandCompiler);
                     expectOnlyCommand = false;
@@ -163,7 +166,8 @@ namespace ProcessorEmulator.Compiler
             return false;
         }
 
-        public bool CreateCommandCompiler(string[] operands, CommandType commandType, out CommandCompiler? compiler, out string errorMessage)
+        public bool CreateCommandCompiler(string[] operands, CommandType commandType, int lineNum, 
+            out CommandCompiler? compiler, out string errorMessage)
         {
             errorMessage = string.Empty;
             switch (commandType)
@@ -195,18 +199,24 @@ namespace ProcessorEmulator.Compiler
                 case CommandType.LOAD:
                     compiler = new LoadCommandCompiler();
                     break;
+                case CommandType.MUL:
+                    compiler = new MultiplyCommandCompiler();
+                    break;
                 case CommandType.RETURN:
                     compiler = new ReturnCommandCompiler();
                     break;
                 case CommandType.STORE:
                     compiler = new StoreCommandCompiler();
                     break;
+                case CommandType.SUB:
+                    compiler = new SubstractCommandCompiler();
+                    break;
                 default:
                     compiler = null;
                     errorMessage = $"Command type {commandType} not implemented";
                     return false;
             }
-            compiler.Init(Context, operands);
+            compiler.Init(Context, operands, lineNum);
             return true;
         }
 
