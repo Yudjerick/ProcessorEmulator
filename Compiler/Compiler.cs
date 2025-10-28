@@ -4,6 +4,7 @@ using ProcessorEmulator.Compiler.CommandCompilers.Specific;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -104,6 +105,15 @@ namespace ProcessorEmulator.Compiler
                         errorMessage = $"'{label}' allready denfined as label";
                         return false;
                     }
+                    if (Context.registersNames.Contains(label))
+                    {
+                        errorMessage = $"'{label}' is reserved for register";
+                        return false;
+                    }
+                    if (Enum.TryParse(label, true, out CommandType _))
+                    {
+                        errorMessage = $"'{label}' is reserved keyword for command";
+                    }
                     Context.labels.Add(label, Context.commandCompilers.Count);
                     return true;
                 }
@@ -130,6 +140,15 @@ namespace ProcessorEmulator.Compiler
                         {
                             errorMessage = $"'{tokens[1]}' allready denfined as label";
                             return false;
+                        }
+                        if (Context.registersNames.Contains(tokens[1]))
+                        {
+                            errorMessage = $"'{tokens[1]}' is reserved for register";
+                            return false;
+                        }
+                        if (Enum.TryParse(tokens[1], true, out CommandType _))
+                        {
+                            errorMessage = $"'{tokens[1]}' is reserved keyword for command";
                         }
                         List<int> variablesToAdd = new List<int>();
                         for(int i = 2; i < tokens.Length; i++)
