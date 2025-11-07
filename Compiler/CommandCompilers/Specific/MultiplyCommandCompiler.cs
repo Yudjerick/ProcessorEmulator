@@ -17,16 +17,12 @@ namespace ProcessorEmulator.Compiler.CommandCompilers.Specific
             new List<AddressingType>
             {
                 AddressingType.Register
-            },
-            new List<AddressingType>
-            {
-                AddressingType.Register
             }
         };
 
         protected override Command GetSpecificCommand(List<ParsedOperand> operands)
         {
-            return new MultiplyCommand(operands[0].value, operands[1].value);
+            return MultiplyCommand.CreateFromOperand(operands[0].value);
         }
     }
 }

@@ -100,5 +100,12 @@ namespace ProcessorEmulator
             uint mask = 1u << (31 - leftOffset);
             return (targetRegister & mask) != 0u;
         }
+
+        public ulong GetLong(int lowRegister)
+        {
+            ulong value = registers[lowRegister];
+            value += (ulong)registers[lowRegister + 1] << 32;
+            return value;
+        }
     }
 }

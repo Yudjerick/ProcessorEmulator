@@ -14,21 +14,22 @@ namespace ProcessorEmulator.Core
             data = binary;
         }
 
-        public MultiplyCommand(uint operandOne, uint operandTwo)
+        public static MultiplyCommand CreateFromOperand(uint register)
         {
-            Type = CommandType.MUL;
-            OperandOne = operandOne;
-            OperandTwo = operandTwo;
+            MultiplyCommand command = new MultiplyCommand(0u);
+            command.Type = CommandType.MUL;
+            command.OperandOne = register;
+            return command;
         }
 
         public override void Execute(Processor processor)
         {
-            int valueOne = (int)processor.GetOperandValue(AddressingType.Register, OperandOne);
-            int valueTwo = (int)processor.GetOperandValue(AddressingType.Register, OperandTwo);
-            int sum = valueOne * valueTwo;
-            processor.SetValueToOperand(AddressingType.Register, OperandOne, (uint)sum);
-            processor.SignFlag = sum < 0;
-            processor.ZeroFlag = sum == 0;
+            uint valueOne = (uint)processor.GetOperandValue(AddressingType.Register, OperandOne);
+            ulong result = valueOne * processor.GetLong(0);
+            processor.SetValueToOperand(AddressingType.Register, 0, (uint)result);
+            processor.SetValueToOperand(AddressingType.Register, 1, (uint)(result >> 32));
+            //processor.SignFlag = sum < 0;
+            processor.ZeroFlag = result == 0;
         }
     }
 }
