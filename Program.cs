@@ -76,6 +76,10 @@ class Program
                 Console.WriteLine();
                 Console.WriteLine("r0:");
                 Console.WriteLine((int)processor.registers[0]);
+                Console.WriteLine();
+                Console.WriteLine("r1r0 unsigned:");
+                ulong biggerBits = (ulong)processor.registers[1] << 32;
+                Console.WriteLine(biggerBits + (ulong)processor.registers[0]);
             }
             else
             {

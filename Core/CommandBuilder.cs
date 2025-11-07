@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ProcessorEmulator.Commands;
 using ProcessorEmulator.Core;
+using ProcessorEmulator.Core.Commands;
 
 namespace ProcessorEmulator
 {
@@ -28,6 +29,9 @@ namespace ProcessorEmulator
                     break;
                 case CommandType.ADD:
                     result = new AddCommand(binary);
+                    break;
+                case CommandType.ADC:
+                    result = new AddCarryCommand(binary);
                     break;
                 case CommandType.SUB:
                     result = new SubstractCommand(binary);

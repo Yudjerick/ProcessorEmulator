@@ -153,7 +153,20 @@ namespace ProcessorEmulator.Compiler
                         List<int> variablesToAdd = new List<int>();
                         for(int i = 2; i < tokens.Length; i++)
                         {
-                            if (int.TryParse(tokens[i], out int intValue))
+                            if (tokens[i].EndsWith('u'))
+                            {
+                                string number = tokens[i].Substring(0, tokens[i].Length - 1);
+                                if (uint.TryParse(number, out uint uintValue))
+                                {
+                                    variablesToAdd.Add((int)uintValue);
+                                }
+                                else
+                                {
+                                    errorMessage = $"{tokens[i]} can't be parsed as uint";
+                                    return false;
+                                }
+                            }
+                            else if (int.TryParse(tokens[i], out int intValue))
                             {
                                 variablesToAdd.Add(intValue);
                             }
@@ -191,6 +204,9 @@ namespace ProcessorEmulator.Compiler
             errorMessage = string.Empty;
             switch (commandType)
             {
+                case CommandType.ADC:
+                    compiler = new AddCarryCommandCompiler();
+                    break;
                 case CommandType.ADD:
                     compiler = new AddCommandCompiler();
                     break;

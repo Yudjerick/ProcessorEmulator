@@ -20,6 +20,7 @@ namespace ProcessorEmulator
         JL = 9,
         JG = 10,
         MUL = 11,
-        RETURN = 12
+        RETURN = 12,
+        ADC = 13
     }
 }

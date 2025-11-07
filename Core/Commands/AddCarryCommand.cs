@@ -1,22 +1,22 @@
-﻿using ProcessorEmulator;
+﻿using ProcessorEmulator.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProcessorEmulator.Commands
+namespace ProcessorEmulator.Core.Commands
 {
-    public class AddCommand : Command
+    internal class AddCarryCommand: Command
     {
-        public AddCommand(uint binary)
+        public AddCarryCommand(uint binary)
         {
             data = binary;
         }
 
-        public AddCommand(uint operandOne, uint operandTwo)
+        public AddCarryCommand(uint operandOne, uint operandTwo)
         {
-            Type = CommandType.ADD;
+            Type = CommandType.ADC;
             OperandOne = operandOne;
             OperandTwo = operandTwo;
         }
@@ -26,7 +26,11 @@ namespace ProcessorEmulator.Commands
             ulong valueOne = (uint)processor.GetOperandValue(AddressingType.Register, OperandOne);
             ulong valueTwo = (uint)processor.GetOperandValue(AddressingType.Register, OperandTwo);
             ulong sum = valueOne + valueTwo;
-            if(sum > uint.MaxValue)
+            if (processor.CarryFlag)
+            {
+                sum++;
+            }
+            if (sum > uint.MaxValue)
             {
                 processor.CarryFlag = true;
             }

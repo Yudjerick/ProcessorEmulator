@@ -29,6 +29,8 @@ namespace ProcessorEmulator
         public bool SignFlag { get => GetBit(flagsRegister, 0); set => SetBit(ref flagsRegister, 0, value); }
         public bool ZeroFlag { get => GetBit(flagsRegister, 1); set => SetBit(ref flagsRegister, 1, value); }
 
+        public bool CarryFlag { get => GetBit(flagsRegister, 2); set => SetBit(ref flagsRegister, 2, value); }
+
         public bool processFinished = false;
 
         public bool ExecuteCommand()
